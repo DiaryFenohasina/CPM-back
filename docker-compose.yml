@@ -1,0 +1,19 @@
+version: '3'
+
+services:
+  CPM:
+    build:
+      context: .
+      dockerfile: Dockerfile-dev
+    ports:
+      - "8006:80"
+    env_file:
+      - .env  
+    volumes:
+      - .:/var/www/html:rw
+    networks:
+      - shared-network
+networks:
+  shared-network:
+    external: true      
+

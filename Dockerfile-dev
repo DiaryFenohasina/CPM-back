@@ -1,0 +1,66 @@
+# Utilise une image PHP officielle avec Apache
+FROM php:8.2-apache
+
+# Installer les dépendances nécessaires pour Laravel, y compris PostgreSQL
+RUN apt-get update \
+    && apt-get install -y \
+        libxml2-dev \
+        libzip-dev \
+        unzip \
+        git \
+        libpq-dev \
+        redis-server \
+    && docker-php-ext-install \
+        pdo_mysql \
+        pdo_pgsql \
+        xml \
+        zip \
+    && a2enmod rewrite \
+    && pecl install redis \
+    && docker-php-ext-enable redis 
+
+RUN apt update -y && apt install nano
+
+RUN mkdir -p /etc/redis && \
+    echo "bind 0.0.0.0" > /etc/redis/redis.conf && \
+    echo "port 6379" >> /etc/redis/redis.conf && \
+    echo "daemonize yes" >> /etc/redis/redis.conf && \
+    echo "supervised auto" >> /etc/redis/redis.conf
+
+# Télécharger Composer et l'installer globalement
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+
+# Définir le répertoire de travail dans le conteneur
+WORKDIR /var/www/html
+
+# Copier les fichiers de l'application Laravel dans le conteneur
+COPY . .
+
+# Installer les dépendances PHP via Composer
+RUN composer install --ignore-platform-req=ext-xml --ignore-platform-req=ext-dom
+
+# Définir les permissions nécessaires pour Laravel
+RUN chown -R www-data:www-data \
+    /var/www/html/storage \
+    /var/www/html/bootstrap/cache
+
+# Configurer Apache pour utiliser /var/www/html/public comme document root
+RUN sed -i -e 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available/000-default.conf
+RUN sed -i -e 's!/var/www/html!/var/www/html/public!g' /etc/apache2/apache2.conf
+
+# Exposer le port HTTP du conteneur
+EXPOSE 80
+
+# Copiez le script dans le conteneur
+COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+
+# Donnez les permissions d'exécution
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
+# Définissez le script comme point d'entrée
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+
+RUN chown -R www-data:www-data .
+#RUN php artisan key:generate
+# Configurer l'entrée de commande pour Apache
+CMD ["apache2-foreground"]
