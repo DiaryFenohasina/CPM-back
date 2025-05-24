@@ -10,3 +10,4 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 Route::post('/cpm',[CpmController::class, 'addTask']);
+Route::get('/cpm',[CpmController::class, 'getTask']);
