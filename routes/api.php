@@ -11,3 +11,4 @@ Route::get('/user', function (Request $request) {
 
 Route::post('/cpm',[CpmController::class, 'addTask']);
 Route::get('/cpm',[CpmController::class, 'getTask']);
+Route::delete('/cpm',[CpmController::class, 'clearTasks']);
