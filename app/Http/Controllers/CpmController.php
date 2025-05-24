@@ -37,4 +37,10 @@ class CpmController extends Controller
     
         return response()->json($task, Response::HTTP_OK);
     }
+
+    public function clearTasks()
+    {
+        Redis::del('tasks');
+        return response()->json(['message' => 'All tasks cleared from Redis'], Response::HTTP_OK);
+    }
 }
