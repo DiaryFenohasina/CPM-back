@@ -15,15 +15,14 @@ class CpmController extends Controller
     public function addTasks(AddTaskRequest $addTaskRequest) {
         foreach ($addTaskRequest->tasks as $task) {
             $taskData = [
-                'name' => $task['name'],
-                'duration' => $task['duration'],
-                'successors' => json_encode($task['successors'] ?? ['fin'])
-            ];
+            'name' => $task['name'],
+            'duration' => $task['duration'],
+            'successors' => $task['successors'] ?? ['fin']
+        ];
+        Redis::hset('tasks', $task['name'], json_encode($taskData));
+    }
 
-            Redis::hset('tasks', $task['name'], json_encode($taskData));
-        }
-
-        return response()->json(['message' => 'Tasks added successfully'],Response::HTTP_CREATED);
+    return response()->json(['message' => 'Tâches ajoutées avec succès.'], Response::HTTP_CREATED);
 
     }
 
@@ -36,16 +35,16 @@ class CpmController extends Controller
             $decoded[] = json_decode($taskJson, true);
         }
 
-        return response()->json($decoded,Response::HTTP_OK);
+        return response()->json($decoded);
     }
+
 
     public function clearTasks()
     {
         Redis::del('tasks');
-        return response()->json(['message' => 'All tasks cleared from Redis'], Response::HTTP_OK);
+        return response()->json(['message' => 'Toutes les tâches ont été supprimées.'], Response::HTTP_OK);
     }
-
-        public function getCriticalPath(CriticalPathService $cpmService)
+    public function getCriticalPath(CriticalPathService $cpmService)
     {
         $rawTasks = Redis::hgetall('tasks');
         $tasks = [];
