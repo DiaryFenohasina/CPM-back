@@ -9,6 +9,7 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
-Route::post('/cpm',[CpmController::class, 'addTask']);
-Route::get('/cpm',[CpmController::class, 'getTask']);
+Route::post('/cpm',[CpmController::class, 'addTasks']);
+Route::get('/cpm',[CpmController::class, 'getTasks']);
 Route::delete('/cpm',[CpmController::class, 'clearTasks']);
+Route::get('/critical-path', [CpmController::class, 'getCriticalPath']);
