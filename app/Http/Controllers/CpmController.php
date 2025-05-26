@@ -31,11 +31,16 @@ class CpmController extends Controller
         return response()->json(['message' => 'Tasks added successfully'],Response::HTTP_CREATED);
     }
 
-    public function getTask(){
-        $tasksArray = $this->getTaskFromRedis();
-        $task = $this->cpmService->FormatTask($tasksArray);
-    
-        return response()->json($task, Response::HTTP_OK);
+    public function getTasks()
+    {
+        $tasks = Redis::hgetall('tasks');
+        $decoded = [];
+
+        foreach ($tasks as $key => $taskJson) {
+            $decoded[] = json_decode($taskJson, true);
+        }
+
+        return response()->json($decoded,Response::HTTP_OK);
     }
 
     public function clearTasks()
