@@ -1,7 +1,7 @@
 <?php
 namespace App\Http\Services;
 
-class CriticalPathService
+class criticalPathService
 {
     public function calculate(array $tasks): array
     {
@@ -71,8 +71,7 @@ class CriticalPathService
         $inDegree = [];
         foreach ($tasks as $name => $task) $inDegree[$name] = 0;
         foreach ($tasks as $task) {
-            $successors = $task['successors'] ?? [];
-            foreach ($successors as $succ) {
+            foreach ($task['successors'] ?? [] as $succ) {
                 $inDegree[$succ]++;
             }
         }
